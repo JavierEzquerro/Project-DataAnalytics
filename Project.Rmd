@@ -23,6 +23,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(knitr)
+library(kableExtra)
 library(dplyr)
 #library(rpart)
 #library(rpart.plot)
@@ -45,10 +47,80 @@ colnames(DS)
 
 ## Descriptive metrics
 
-Your text goes here
+We created a function to calculate the descriptive metrics (playtime, sessions, levels completed, and spending) for all users, Premium users, and Freemium users. Then, we generated the Premium and Freemium datasets, applied the function to each segment, and finally used kableExtra to display the results in clean, formatted tables.
 
+```{r}
+
+# ----------------------------------------------------------
+# 1. Helper function to compute descriptive metrics
+# ----------------------------------------------------------
+
+describe_segment <- function(df, segment_name) 
+{
+  data.frame(
+    Segment = segment_name,
+    Variable = c("playtime", "sessions", "levels", "spending"),
+    Average = c(mean(df$playtime),
+                mean(df$sessions),
+                mean(df$levels),
+                mean(df$spending)),
+    StandardDeviation = c(sd(df$playtime),
+                          sd(df$sessions),
+                          sd(df$levels),
+                          sd(df$spending))
+  )
+}
+
+# ----------------------------------------------------------
+# 2. Create Premium and Freemium datasets
+# ----------------------------------------------------------
+
+DS_Premium  <- DS[DS$user_type == "Premium", ]
+DS_Freemium <- DS[DS$user_type == "Freemium", ]
+
+# ----------------------------------------------------------
+# 3. Generate all descriptive tables using the helper function
+# ----------------------------------------------------------
+
+global_table   <- describe_segment(DS,          "All users")
+premium_table  <- describe_segment(DS_Premium,  "Premium")
+freemium_table <- describe_segment(DS_Freemium, "Freemium")
+
+# ----------------------------------------------------------
+# 4. Display each table separately with kableExtra
+# ----------------------------------------------------------
+
+# ---- GLOBAL TABLE ----
+global_table %>%
+  kable(format = "html", digits = 2,
+        caption = "Global - Descriptive Metrics") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(1, bold = TRUE) %>%
+  column_spec(2, bold = TRUE) %>%
+  column_spec(3, color = "blue") %>%
+  column_spec(4, color = "darkred")
+
+# ---- PREMIUM TABLE ----
+premium_table %>%
+  kable(format = "html", digits = 2,
+        caption = "Premium Users - Descriptive Metrics") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(1, bold = TRUE) %>%
+  column_spec(2, bold = TRUE) %>%
+  column_spec(3, color = "blue") %>%
+  column_spec(4, color = "darkred")
+
+# ---- FREEMIUM TABLE ----
+freemium_table %>%
+  kable(format = "html", digits = 2,
+        caption = "Freemium Users - Descriptive Metrics") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(1, bold = TRUE) %>%
+  column_spec(2, bold = TRUE) %>%
+  column_spec(3, color = "blue") %>%
+  column_spec(4, color = "darkred")
 ## Game performance metrics
-
+```
 Also here.
 
 ------------------------------------------------
