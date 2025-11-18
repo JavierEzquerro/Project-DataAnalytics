@@ -1,0 +1,172 @@
+---
+title: "Data Analytics 2025"
+author: "Project Template (draft)"
+date: "Your names"
+output: 
+  html_document:
+    theme:
+      bootswatch: flatly
+      base_font: {google: "Open Sans"}
+      size: 0.55rem              
+      heading_font:
+        google: "Lato"
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    number_sections: true
+    highlight: textmate
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+#library(rpart)
+#library(rpart.plot)
+#library(caret)
+```
+
+-----------------------------
+
+
+# Descriptive Analytics
+
+Your text goes here
+
+```{r}
+#read the file
+DS <- read.csv("gaming_data.csv")
+colnames(DS)
+```
+
+
+## Descriptive metrics
+
+Your text goes here
+
+## Game performance metrics
+
+Also here.
+
+------------------------------------------------
+
+# Visuals
+
+```{r}
+ggplot(DS,   aes(x = playtime, y = spending, color = user_type)) +
+  geom_point(size = 1) +
+  labs(title = "Spending vs playtime", x = "playtime", y = "spending")
+
+# Line plot
+ggplot(DS, aes(x = playtime, y = spending)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Income by Age", x = "playtime", y = "spending")
+
+# Boxplot
+ggplot(DS, aes(x = user_type, y = spending)) +
+  geom_boxplot() +
+  labs(title = "Spending by user type", x = "User type", y = "Spending")
+```
+
+------------------------------------------------------------
+
+
+# AB testing
+
+## Test 1
+
+### Research question
+### Hypotheses
+
+### Type of test
+
+### Computations
+
+
+### Interpretation
+
+
+
+## Test 2
+
+The indie studio tested two different versions of the game on the current users. 
+The users labeled as A downloaded the standard version of the game, while users in group B downloaded a new version with an improved reward system.
+The designers believed that the new reward system will produce higher playtime among the users. 
+Can you search in the data whether there is evidence to do such claim with
+95\% confidence level?
+
+
+### Research question
+
+### Hypotheses
+
+### Type of test
+
+### Computations
+
+
+### Interpretation
+
+
+
+
+
+----------------
+
+# Regression analysis
+
+In this section, we'll build a regression model to assess whether the player's spending amount
+can be predicted based on the other variables.
+ 
+## Regression model with numerical variables 
+
+## Prediction
+
+## Regression model with numerical and categorical variables 
+
+
+
+
+-----------------------------------------------------------------------
+
+# Classification analysis
+
+
+## Data splits
+## Build a decision tree 
+
+## Evaluate the tree
+
+## Tree visualisation
+
+
+## Train a K-NN algorithm
+
+
+## Evaluate the K-NN algorithm
+
+
+## Evaluate and compare
+
+
+
+---------------------------------
+
+# Conclusions
+
+## Insights
+
+## Learnings
+
+
+-----------------
+
+# Distribution of tasks
+
+
+
+
+
