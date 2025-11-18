@@ -1,7 +1,6 @@
 ---
 title: "Data Analytics 2025"
-author: "Project Template (draft)"
-date: "Your names"
+author: "Guillem Plademunt, Bernat Garcia, Javier Ezquerro and Marc Soriano"
 output: 
   html_document:
     theme:
@@ -36,7 +35,7 @@ library(dplyr)
 
 # Descriptive Analytics
 
-Your text goes here
+Before we start with any analysis, we need to understand the data that is available and the general distribution of the variables, in terms of central tendency and dispersion. Also, visualisation helps understand the data.
 
 ```{r}
 #read the file
@@ -119,13 +118,46 @@ freemium_table %>%
   column_spec(2, bold = TRUE) %>%
   column_spec(3, color = "blue") %>%
   column_spec(4, color = "darkred")
-## Game performance metrics
-```
-Also here.
 
+```
+## Game Performance Metrics 
+Using the data available in the dataset, we computed the following game performance metrics: ARPU, ARPPU, conversion rate and average engagement index.
+
+```{r}
+# ARPU
+ARPU <- mean(DS$spending)
+
+# ARPPU
+paying_users <- DS[DS$spending > 0,]
+ARPPU <- mean(paying_users$spending)
+
+# Conversion Rate
+conversion_rate <- nrow(paying_users) / nrow(DS)
+
+# Engagement index per player
+DS$engagement_index <- DS$playtime * DS$sessions
+
+# Average Engagement Index
+avg_engagement <- mean(DS$engagement_index)
+
+# Results
+metrics <- data.frame(
+  Metric = c("ARPU", "ARPPU", "Conversion Rate", "Average Engagement Index"),
+  Value = c(ARPU, ARPPU, conversion_rate, avg_engagement)
+)
+
+kableExtra::kable(metrics, caption = "Game Performance Metrics")
+```
 ------------------------------------------------
 
 # Visuals
+
+#1
+<br>
+This code creates a pie chart showing the percentages of Premium vs Freemium users.
+It counts the number of users of each type and converts it to percentages.
+The chart displays proportional sections with the percentage labels inside each slice.
+It allows a quick visual comparison of the distribution of user types in the dataset.
 
 ```{r}
 #1
@@ -142,8 +174,19 @@ ggplot(percent_summary, aes(x = "", y = percent, fill = user_type)) +
             position = position_stack(vjust = 0.5)) +  
   labs(title = "Percentage of paying users versus non paying users") +
   theme_void()                      
+```
+<br>
+<br>
+<br>
+<br>
+#2
+<br>
+This code creates a boxplot comparing playtime between group A and group B.
+It first calculates an engagement index as playtime * sessions, although the plot shows only playtime.
+Each box shows the median, quartiles, and outliers for each group.
+It allows visual comparison of how playtime differs between the two groups.
 
-
+```{r}
 #2
 # Boxplot comparing playtime and engagement of group A vs. group B.
 DS <- DS %>%
@@ -157,7 +200,18 @@ ggplot(DS, aes(x = group, y = playtime, fill = group)) +
        y = "Playtime (minutes)") +
   theme_minimal()
 
-
+```
+<br>
+<br>
+<br>
+<br>
+#3
+<br>
+This code creates a line plot showing the relationship between sessions and levels completed.
+Each group (A and B) is represented with a different color.
+Points show actual values, and lines connect them to highlight trends.
+It allows visual comparison of how levels completed change with sessions for each group.
+```{r}
 #3
 # Line plot: Levels completed vs Sessions per Group
 ggplot(DS, aes(x = sessions, y = levels, color = group)) +
