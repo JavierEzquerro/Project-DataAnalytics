@@ -23,6 +23,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(dplyr)
 #library(rpart)
 #library(rpart.plot)
 #library(caret)
@@ -55,20 +56,47 @@ Also here.
 # Visuals
 
 ```{r}
-ggplot(DS,   aes(x = playtime, y = spending, color = user_type)) +
-  geom_point(size = 1) +
-  labs(title = "Spending vs playtime", x = "playtime", y = "spending")
+#1
+# Percentage of paying users versus non paying users.
+percent_summary <- DS %>%
+  group_by(user_type) %>%
+  summarise(count = n()) %>%
+  mutate(percent = count / sum(count) * 100)
 
-# Line plot
-ggplot(DS, aes(x = playtime, y = spending)) +
+ggplot(percent_summary, aes(x = "", y = percent, fill = user_type)) +
+  geom_col(width = 1, color = "white") +   
+  coord_polar(theta = "y") +               
+  geom_text(aes(label = paste0(round(percent,1), "%")),
+            position = position_stack(vjust = 0.5)) +  
+  labs(title = "Percentage of paying users versus non paying users") +
+  theme_void()                      
+
+
+#2
+# Boxplot comparing playtime and engagement of group A vs. group B.
+DS <- DS %>%
+  mutate(engagement = playtime * sessions)
+
+# Boxplot de playtime per grup
+ggplot(DS, aes(x = group, y = playtime, fill = group)) +
+  geom_boxplot() +
+  labs(title = "Boxplot: Playtime by Group (A vs B)",
+       x = "Group",
+       y = "Playtime (minutes)") +
+  theme_minimal()
+
+
+#3
+# Line plot: Levels completed vs Sessions per Group
+ggplot(DS, aes(x = sessions, y = levels, color = group)) +
   geom_line() +
   geom_point() +
-  labs(title = "Income by Age", x = "playtime", y = "spending")
+  labs(title = "Levels completed vs Sessions per Group",
+       x = "Number of Sessions",
+       y = "Average Levels Completed",
+       color = "Group") +
+  theme_minimal()
 
-# Boxplot
-ggplot(DS, aes(x = user_type, y = spending)) +
-  geom_boxplot() +
-  labs(title = "Spending by user type", x = "User type", y = "Spending")
 ```
 
 ------------------------------------------------------------
