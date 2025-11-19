@@ -50,9 +50,7 @@ We created a function to calculate the descriptive metrics (playtime, sessions, 
 
 ```{r}
 
-# ----------------------------------------------------------
-# 1. Helper function to compute descriptive metrics
-# ----------------------------------------------------------
+# 1 Function to compute descriptive metrics
 
 describe_segment <- function(df, segment_name) 
 {
@@ -70,24 +68,16 @@ describe_segment <- function(df, segment_name)
   )
 }
 
-# ----------------------------------------------------------
-# 2. Create Premium and Freemium datasets
-# ----------------------------------------------------------
+# 2 Premium and Freemium datasets
 
 DS_Premium  <- DS[DS$user_type == "Premium", ]
 DS_Freemium <- DS[DS$user_type == "Freemium", ]
 
-# ----------------------------------------------------------
-# 3. Generate all descriptive tables using the helper function
-# ----------------------------------------------------------
+# 3 Generate all tables
 
 global_table   <- describe_segment(DS,          "All users")
 premium_table  <- describe_segment(DS_Premium,  "Premium")
 freemium_table <- describe_segment(DS_Freemium, "Freemium")
-
-# ----------------------------------------------------------
-# 4. Display each table separately with kableExtra
-# ----------------------------------------------------------
 
 # ---- GLOBAL TABLE ----
 global_table %>%
@@ -277,12 +267,71 @@ can be predicted based on the other variables.
  
 ## Regression model with numerical variables 
 
+```{r}
+
+# variables: playtime sessions, levels, friends and skill_score.
+
+DS_Predict_Regression <- DS[, c("sessions", "levels", "friends", "skill_score", "playtime", "spending")]
+model <- lm( spending ~ ., DS_Predict_Regression)
+summary(model)
+
+```
+In the results, we can observe that the model is not precise. The R-squared value is 0.002, which indicates that the model explains only 0.2% of the variability in the dependent variable. This extremely low value suggests that the model has almost no explanatory power.
+
+A well-fitting regression model would normally present an R-squared value closer to 1, meaning that a larger proportion of the variance in the outcome variable is accounted for by the predictors. In this case, the R-squared value demonstrates that the model does not adequately capture the relationship between the variables.
+
 ## Prediction
+
+In this section, we use the previously fitted regression model to predict the spending behavior of a specific user profile. First, we define a hypothetical user with fixed characteristics and obtain the predicted spending value produced by the model.
+
+Next, we run a simulation to analyse how predicted spending changes as playtime increases. To do this, we generate a sequence of playtime values ranging from 100 to 1000 (in steps of 50) while holding all other variables constant. Using this simulated dataset, we compute the predicted spending for each level of playtime.
+
+Finally, we present the resulting prediction table and generate a scatter plot with a fitted linear regression line to visualise the relationship between playtime and predicted spending.
+
+```{R}
+# Create a random data frame
+random_user <- data.frame(
+  playtime = 200, 
+  sessions = 10, 
+  levels = 5,
+  friends =100, 
+  skill_score=60
+)
+
+# Predict the spending using the previous model
+predict(model, random_user)
+
+# Create a new simulation
+playtime_seq <- seq(100,1000,50)
+simulation <- data.frame(
+  playtime = playtime_seq, 
+  sessions = 10,
+  levels = 5,
+  friends =100,
+  skill_score=60
+  )
+
+simulation$spending<-predict(model, simulation)
+print(simulation)
+
+# Create the plot
+ggplot(simulation, aes(x = playtime, y = spending))+ 
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red")
+
+```
 
 ## Regression model with numerical and categorical variables 
 
+In this step, we fit a multiple linear regression model that includes both numerical and categorical predictors. This allows us to evaluate how each variable contributes to explaining spending while controlling for the others. 
 
+```{R}
 
+model_categorical <- lm(spending ~., DS)
+summary(model_categorical)
+
+```
+The model has very low explanatory power (R² = 0.02), so it is not accurate. The variable user_typePremium is the only significant predictor: Premium users spend, on average, about 14.45 units more than Freemium users. The group variable (groupB) is not statistically significant, so we cannot conclude that Group B spends more or less than Group A.
 
 -----------------------------------------------------------------------
 
