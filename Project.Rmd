@@ -232,7 +232,11 @@ ggplot(DS, aes(x = sessions, y = levels, color = group)) +
 
 ## Test 1
 
+The designers aim to investigate whether the players will have a playtime greater than 60 minutes in average.
+Can you answer this question using the current sample? Use a confidence level of 95%.
+
 ### Research question
+
 ### Hypotheses
 
 ### Type of test
