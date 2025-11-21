@@ -226,10 +226,15 @@ The designers aim to investigate whether the players will have a playtime greate
 Can you answer this question using the current sample? Use a confidence level of 95%.
 
 ### Research question
+Is the average playing time of the players significantly higher than 60 minutes?
 
 ### Hypotheses
+H₀: μ ≤ 60
+
+H₁: μ > 60
 
 ### Type of test
+One sample, one-tailed test
 
 ### Computations
 
