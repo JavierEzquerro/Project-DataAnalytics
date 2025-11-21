@@ -30,15 +30,14 @@ library(dplyr)
 #library(caret)
 ```
 
------------------------------
-
+------------------------------------------------
 
 # Descriptive Analytics
 
 Before we start with any analysis, we need to understand the data that is available and the general distribution of the variables, in terms of central tendency and dispersion. Also, visualisation helps understand the data.
 
 ```{r}
-#read the file
+# Read the file
 DS <- read.csv("gaming_data.csv")
 colnames(DS)
 ```
@@ -110,6 +109,7 @@ freemium_table %>%
   column_spec(4, color = "darkred")
 
 ```
+
 ## Game Performance Metrics 
 Using the data available in the dataset, we computed the following game performance metrics: ARPU, ARPPU, conversion rate and average engagement index.
 
@@ -136,14 +136,18 @@ metrics <- data.frame(
   Value = c(ARPU, ARPPU, conversion_rate, avg_engagement)
 )
 
-kableExtra::kable(metrics, caption = "Game Performance Metrics")
+metrics %>%
+  kable(caption = "Game Performance Metrics", format = "html", digits = 2, align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  row_spec(0, bold = TRUE, background = "#f2f2f2")
 ```
+
 ------------------------------------------------
 
 # Visuals
 
 #1
-<br>
+
 This code creates a pie chart showing the percentages of Premium vs Freemium users.
 It counts the number of users of each type and converts it to percentages.
 The chart displays proportional sections with the percentage labels inside each slice.
@@ -170,7 +174,7 @@ ggplot(percent_summary, aes(x = "", y = percent, fill = user_type)) +
 <br>
 <br>
 #2
-<br>
+
 This code creates a boxplot comparing playtime between group A and group B.
 It first calculates an engagement index as playtime * sessions, although the plot shows only playtime.
 Each box shows the median, quartiles, and outliers for each group.
@@ -196,7 +200,7 @@ ggplot(DS, aes(x = group, y = playtime, fill = group)) +
 <br>
 <br>
 #3
-<br>
+
 This code creates a line plot showing the relationship between sessions and levels completed.
 Each group (A and B) is represented with a different color.
 Points show actual values, and lines connect them to highlight trends.
@@ -215,8 +219,7 @@ ggplot(DS, aes(x = sessions, y = levels, color = group)) +
 
 ```
 
-------------------------------------------------------------
-
+------------------------------------------------
 
 # AB testing
 
@@ -233,7 +236,6 @@ Can you answer this question using the current sample? Use a confidence level of
 
 ### Computations
 
-
 ### Interpretation
 
 
@@ -246,23 +248,77 @@ The designers believed that the new reward system will produce higher playtime a
 Can you search in the data whether there is evidence to do such claim with
 95\% confidence level?
 
-
 ### Research question
+Does the new version of the game with an improved reward system (Group B) result in higher average playtime compared to the standard version (Group A)?
 
 ### Hypotheses
+Null hypothesis: H0: μB ≤ μA
+<br>
+Alternative hypothesis: H1: μB > μA 
 
 ### Type of test
+Two independent samples, one-tailed test, upper tail.
 
 ### Computations
 
+```{r}
+# Sample sizes
+n_A <- sum(DS$group == "A")
+n_B <- sum(DS$group == "B")
+
+# Sample means
+mean_A <- mean(DS$playtime[DS$group == "A"])
+mean_B <- mean(DS$playtime[DS$group == "B"])
+
+# Sample variances
+var_A <- var(DS$playtime[DS$group == "A"])
+var_B <- var(DS$playtime[DS$group == "B"])
+
+# Observed value
+t_obs <- (mean_B - mean_A) / sqrt(var_B/n_B + var_A/n_A)
+
+# Degrees of freedom
+df_num <- (var_B/n_B + var_A/n_A)^2
+df_den <- ( (var_B/n_B)^2 / (n_B - 1) ) + ( (var_A/n_A)^2 / (n_A - 1) )
+df <- df_num / df_den
+
+# Critical t-value (upper tail)
+t_crit <- qt(0.95, df)
+
+# p-value
+p_val <- 1 - pt(t_obs, df)
+```
+
+Sample sizes: nA = 767, nB = 733
+
+Means: XA = 55.50, XB = 64.81
+
+Variances:s^2A = 104.12, S^2B = 92.766
+
+Observed t-value: tobs = 18.17
+
+Critical t-value (upper tail, 95%): tcrit = 1.6458
+
+p-value: p ≈ 0
+
+Degrees of freedom (df) ~ 1497.77
+
+tobs = 18.17 vs tcrit = 1.65
+<br>
+Since, 
+<br>
+tobs > tcrit. 
+<br>
+We reject the null hypothesis.
 
 ### Interpretation
+With 95% confidence, the new version of the game with the improved reward system (Group B) results in higher average playtime than the standard version (Group A).
 
+On average, players in Group B played 64.81 minutes per session, while players in Group A played 55.50 minutes.
 
+The difference is significant, and the evidence strongly supports the designers’ claim.
 
-
-
-----------------
+------------------------------------------------
 
 # Regression analysis
 
