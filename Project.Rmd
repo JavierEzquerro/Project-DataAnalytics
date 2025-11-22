@@ -237,11 +237,43 @@ H₁: μ > 60
 One sample, one-tailed test
 
 ### Computations
+```{r}
+# Sample size
+n <- length(DS$playtime)
 
+# Sample mean
+x_bar <- mean(DS$playtime)
+
+# Sample standard deviation
+s <- sd(DS$playtime)
+
+#Mean according to H₀
+mu0 <- 60
+
+# Observed statistic
+t_stat <- (x_bar - mu0) / (s / sqrt(n))
+t_stat
+
+# P-value 
+p_value <- 1 - pt(t_stat, df = n-1)
+p_value
+
+# Significance level
+alpha <- 0.05
+
+# Decision
+if(p_value < alpha){
+  print("Reject H0: the mean is significantly greater than 60")
+} else {
+  print("Fail to reject H0: there is not enough evidence that the mean is > 60")
+}
+```
 
 ### Interpretation
 
+The average playtime of the players in the current sample is slightly above 60 minutes (𝑥=60.05). However, the observed difference from the hypothesized value of 60 minutes is not statistically significant at the 95% confidence level (p-value > 0.05).
 
+Therefore, we fail to reject the null hypothesis. This means there is not enough evidence to conclude that the average playtime of players is significantly greater than 60 minutes.
 
 ## Test 2
 

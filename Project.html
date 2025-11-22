@@ -3719,15 +3719,50 @@ question using the current sample? Use a confidence level of 95%.</p>
 <div id="research-question" class="section level3" number="3.1.1">
 <h3><span class="header-section-number">3.1.1</span> Research
 question</h3>
+<p>Is the average playing time of the players significantly higher than
+60 minutes?</p>
 </div>
 <div id="hypotheses" class="section level3" number="3.1.2">
 <h3><span class="header-section-number">3.1.2</span> Hypotheses</h3>
+<p>H₀: μ ≤ 60</p>
+<p>H₁: μ &gt; 60</p>
 </div>
 <div id="type-of-test" class="section level3" number="3.1.3">
 <h3><span class="header-section-number">3.1.3</span> Type of test</h3>
+<p>One sample, one-tailed test</p>
 </div>
 <div id="computations" class="section level3" number="3.1.4">
 <h3><span class="header-section-number">3.1.4</span> Computations</h3>
+<pre class="r"><code># Sample size
+n &lt;- length(DS$playtime)
+
+# Sample mean
+x_bar &lt;- mean(DS$playtime)
+
+# Sample standard deviation
+s &lt;- sd(DS$playtime)
+
+#Mean according to H₀
+mu0 &lt;- 60
+
+# Observed statistic
+t_stat &lt;- (x_bar - mu0) / (s / sqrt(n))
+t_stat</code></pre>
+<pre><code>## [1] 0.1865369</code></pre>
+<pre class="r"><code># P-value 
+p_value &lt;- 1 - pt(t_stat, df = n-1)
+p_value</code></pre>
+<pre><code>## [1] 0.4260245</code></pre>
+<pre class="r"><code># Significance level
+alpha &lt;- 0.05
+
+# Decision
+if(p_value &lt; alpha){
+  print(&quot;Reject H0: the mean is significantly greater than 60&quot;)
+} else {
+  print(&quot;Fail to reject H0: there is not enough evidence that the mean is &gt; 60&quot;)
+}</code></pre>
+<pre><code>## [1] &quot;Fail to reject H0: there is not enough evidence that the mean is &gt; 60&quot;</code></pre>
 </div>
 <div id="interpretation" class="section level3" number="3.1.5">
 <h3><span class="header-section-number">3.1.5</span> Interpretation</h3>
@@ -3745,18 +3780,65 @@ level?</p>
 <div id="research-question-1" class="section level3" number="3.2.1">
 <h3><span class="header-section-number">3.2.1</span> Research
 question</h3>
+<p>Does the new version of the game with an improved reward system
+(Group B) result in higher average playtime compared to the standard
+version (Group A)?</p>
 </div>
 <div id="hypotheses-1" class="section level3" number="3.2.2">
 <h3><span class="header-section-number">3.2.2</span> Hypotheses</h3>
+<p>Null hypothesis: H0: μB ≤ μA <br> Alternative hypothesis: H1: μB &gt;
+μA</p>
 </div>
 <div id="type-of-test-1" class="section level3" number="3.2.3">
 <h3><span class="header-section-number">3.2.3</span> Type of test</h3>
+<p>Two independent samples, one-tailed test, upper tail.</p>
 </div>
 <div id="computations-1" class="section level3" number="3.2.4">
 <h3><span class="header-section-number">3.2.4</span> Computations</h3>
+<pre class="r"><code># Sample sizes
+n_A &lt;- sum(DS$group == &quot;A&quot;)
+n_B &lt;- sum(DS$group == &quot;B&quot;)
+
+# Sample means
+mean_A &lt;- mean(DS$playtime[DS$group == &quot;A&quot;])
+mean_B &lt;- mean(DS$playtime[DS$group == &quot;B&quot;])
+
+# Sample variances
+var_A &lt;- var(DS$playtime[DS$group == &quot;A&quot;])
+var_B &lt;- var(DS$playtime[DS$group == &quot;B&quot;])
+
+# Observed value
+t_obs &lt;- (mean_B - mean_A) / sqrt(var_B/n_B + var_A/n_A)
+
+# Degrees of freedom
+df_num &lt;- (var_B/n_B + var_A/n_A)^2
+df_den &lt;- ( (var_B/n_B)^2 / (n_B - 1) ) + ( (var_A/n_A)^2 / (n_A - 1) )
+df &lt;- df_num / df_den
+
+# Critical t-value (upper tail)
+t_crit &lt;- qt(0.95, df)
+
+# p-value
+p_val &lt;- 1 - pt(t_obs, df)</code></pre>
+<p>Sample sizes: nA = 767, nB = 733</p>
+<p>Means: XA = 55.50, XB = 64.81</p>
+<p>Variances:s^2A = 104.12, S^2B = 92.766</p>
+<p>Observed t-value: tobs = 18.17</p>
+<p>Critical t-value (upper tail, 95%): tcrit = 1.6458</p>
+<p>p-value: p ≈ 0</p>
+<p>Degrees of freedom (df) ~ 1497.77</p>
+<p>tobs = 18.17 vs tcrit = 1.65 <br> Since, <br> tobs &gt; tcrit. <br>
+We reject the null hypothesis.</p>
 </div>
 <div id="interpretation-1" class="section level3" number="3.2.5">
 <h3><span class="header-section-number">3.2.5</span> Interpretation</h3>
+<p>With 95% confidence, the new version of the game with the improved
+reward system (Group B) results in higher average playtime than the
+standard version (Group A).</p>
+<p>On average, players in Group B played 64.81 minutes per session,
+while players in Group A played 55.50 minutes.</p>
+<p>The difference is significant, and the evidence strongly supports the
+designers’ claim.</p>
 <hr />
 </div>
 </div>
