@@ -132,11 +132,14 @@ avg_engagement <- mean(DS$engagement_index)
 
 # Results
 metrics <- data.frame(
-  Metric = c("ARPU", "ARPPU", "Conversion Rate", "Average Engagement Index"),
+  Metric = c("**ARPU**", "**ARPPU**", "**Conversion Rate**", "**Average Engagement Index**"),
   Value = c(ARPU, ARPPU, conversion_rate, avg_engagement)
 )
 
-kableExtra::kable(metrics, caption = "Game Performance Metrics")
+metrics %>%
+  mutate(Value = format(Value, digits = 2, nsmall = 2)) %>% 
+  kable(caption = "Game Performance Metrics", escape = FALSE) %>%
+  kable_styling(full_width = TRUE, bootstrap_options = c("striped", "hover"))
 ```
 ------------------------------------------------
 
@@ -463,6 +466,18 @@ The model has very low explanatory power (R² = 0.02), so it is not accurate. Th
 -----------------
 
 # Distribution of tasks
+The following distribution of tasks follows the same order as in the table of contents.
+Descriptive metrics was done by Javier Ezquerro.
+Game performance metrics was done by Marc Soriano.
+Visuals were done by Guillem Plademunt and Bernat Garcia (3 visuals each).
+AB testing was done by Guillem Plademunt (Test 1) and Marc Soriano (Test 2).
+Regression analysis was done by Javier Ezquerro. 
+Classification analysis was done by Bernat Garcia.
+Finally, the conclusions were written by the whole team collaboratively.
+
+
+
+
 
 
 
