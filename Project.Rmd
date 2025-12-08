@@ -25,13 +25,12 @@ library(ggplot2)
 library(knitr)
 library(kableExtra)
 library(dplyr)
-#library(rpart)
-#library(rpart.plot)
-#library(caret)
+library(rpart)
+library(rpart.plot)
+library(caret)
 ```
 
 -----------------------------
-
 
 # Descriptive Analytics
 
@@ -42,7 +41,6 @@ Before we start with any analysis, we need to understand the data that is availa
 DS <- read.csv("gaming_data.csv")
 colnames(DS)
 ```
-
 
 ## Descriptive metrics
 
@@ -110,7 +108,9 @@ freemium_table %>%
   column_spec(4, color = "darkred")
 
 ```
-## Game Performance Metrics 
+
+## Game Performance Metrics
+
 Using the data available in the dataset, we computed the following game performance metrics: ARPU, ARPPU, conversion rate and average engagement index.
 
 ```{r}
@@ -141,7 +141,8 @@ metrics %>%
   kable(caption = "Game Performance Metrics", escape = FALSE) %>%
   kable_styling(full_width = TRUE, bootstrap_options = c("striped", "hover"))
 ```
-------------------------------------------------
+
+-----------------------------
 
 # Visuals
 
@@ -168,10 +169,12 @@ ggplot(percent_summary, aes(x = "", y = percent, fill = user_type)) +
   labs(title = "Percentage of paying users versus non paying users") +
   theme_void()                      
 ```
+
 <br>
 <br>
 <br>
 <br>
+
 #2
 <br>
 This code creates a boxplot comparing playtime between group A and group B.
@@ -194,16 +197,19 @@ ggplot(DS, aes(x = group, y = playtime, fill = group)) +
   theme_minimal()
 
 ```
+
 <br>
 <br>
 <br>
 <br>
+
 #3
 <br>
 This code creates a line plot showing the relationship between sessions and levels completed.
 Each group (A and B) is represented with a different color.
 Points show actual values, and lines connect them to highlight trends.
 It allows visual comparison of how levels completed change with sessions for each group.
+
 ```{r}
 #3
 # Line plot: Levels completed vs Sessions per Group
@@ -218,8 +224,7 @@ ggplot(DS, aes(x = sessions, y = levels, color = group)) +
 
 ```
 
-------------------------------------------------------------
-
+-----------------------------
 
 # AB testing
 
@@ -229,17 +234,21 @@ The designers aim to investigate whether the players will have a playtime greate
 Can you answer this question using the current sample? Use a confidence level of 95%.
 
 ### Research question
+
 Is the average playing time of the players significantly higher than 60 minutes?
 
 ### Hypotheses
+
 H₀: μ ≤ 60
 
 H₁: μ > 60
 
 ### Type of test
+
 One sample, one-tailed test
 
 ### Computations
+
 ```{r}
 # Sample size
 n <- length(DS$playtime)
@@ -274,7 +283,7 @@ if(p_value < alpha){
 
 ### Interpretation
 
-The average playtime of the players in the current sample is slightly above 60 minutes (𝑥=60.05). However, the observed difference from the hypothesized value of 60 minutes is not statistically significant at the 95% confidence level (p-value > 0.05).
+The average playtime of the players in the current sample is slightly above 60 minutes (x = 60.05). However, the observed difference from the hypothesized value of 60 minutes is not statistically significant at the 95% confidence level (p-value > 0.05).
 
 Therefore, we fail to reject the null hypothesis. This means there is not enough evidence to conclude that the average playtime of players is significantly greater than 60 minutes.
 
@@ -287,14 +296,17 @@ Can you search in the data whether there is evidence to do such claim with
 95\% confidence level?
 
 ### Research question
+
 Does the new version of the game with an improved reward system (Group B) result in higher average playtime compared to the standard version (Group A)?
 
 ### Hypotheses
+
 Null hypothesis: H0: μB ≤ μA
 <br>
 Alternative hypothesis: H1: μB > μA 
 
 ### Type of test
+
 Two independent samples, one-tailed test, upper tail.
 
 ### Computations
@@ -350,13 +362,14 @@ tobs > tcrit.
 We reject the null hypothesis.
 
 ### Interpretation
+
 With 95% confidence, the new version of the game with the improved reward system (Group B) results in higher average playtime than the standard version (Group A).
 
 On average, players in Group B played 64.81 minutes per session, while players in Group A played 55.50 minutes.
 
 The difference is significant, and the evidence strongly supports the designers’ claim.
 
-------------------------------------------------
+-----------------------------
 
 # Regression analysis
 
@@ -374,6 +387,7 @@ model <- lm( spending ~ ., DS_Predict_Regression)
 summary(model)
 
 ```
+
 In the results, we can observe that the model is not precise. The R-squared value is 0.002, which indicates that the model explains only 0.2% of the variability in the dependent variable. This extremely low value suggests that the model has almost no explanatory power.
 
 A well-fitting regression model would normally present an R-squared value closer to 1, meaning that a larger proportion of the variance in the outcome variable is accounted for by the predictors. In this case, the R-squared value demonstrates that the model does not adequately capture the relationship between the variables.
@@ -429,51 +443,177 @@ model_categorical <- lm(spending ~., DS)
 summary(model_categorical)
 
 ```
-The model has very low explanatory power (R² = 0.02), so it is not accurate. The variable user_typePremium is the only significant predictor: Premium users spend, on average, about 14.45 units more than Freemium users. The group variable (groupB) is not statistically significant, so we cannot conclude that Group B spends more or less than Group A.
+The model has very low explanatory power (R² = 0.02), so it is not accurate. The variable user_typePremium is the only significant predictor: Premium users spend, on average, about 14.45 units more than Freemium users. The group variable (GroupB) is not statistically significant, so we cannot conclude that Group B spends more or less than Group A.
 
------------------------------------------------------------------------
+-----------------------------
 
 # Classification analysis
-
+In this section, we aim to classify each player as either Premium or Freemium based on their gameplay and engagement metrics. To do so, we apply two supervised learning techniques: a Decision Tree and a k-Nearest Neighbors (K-NN) classifier.
+We begin by splitting the dataset into training (70%) and testing (30%) sets. Then, we train and evaluate both models using identical splits to ensure a fair comparison. Performance is assessed through accuracy and confusion matrices.
 
 ## Data splits
-## Build a decision tree 
+
+We create a partition using user_type as the stratification variable so both sets preserve the original class proportions.
+
+```{R}
+# Split the data into training (70%) and testing (30%)
+set.seed(120)
+
+idx_class <- createDataPartition(y = DS$user_type, p = 0.70, list = FALSE)
+
+train_class <- DS[idx_class, ]
+test_class  <- DS[-idx_class, ]
+```
+
+## Build a decision tree
+
+The decision tree uses all available variables to create rules that classify players into Premium or Freemium.
+
+```{R}
+# Train a decision tree using all predictors except user_type
+tree_model <- rpart(user_type ~ ., data = train_class)
+```
 
 ## Evaluate the tree
 
-## Tree visualisation
+We evaluate the tree by comparing predictions to actual values and computing the overall accuracy and confusion matrix.
 
+```{R}
+# Predict user_type values in the test set
+tree_pred <- predict(tree_model, newdata = test_class, type = "class")
+
+# Compute accuracy
+tree_accuracy <- mean(tree_pred == test_class$user_type)
+tree_accuracy
+
+# Compute confusion matrix
+tree_conf_matrix <- table(Predicted = tree_pred,
+                          Actual = test_class$user_type)
+tree_conf_matrix
+```
+
+## Tree visualisation
+The tree plot helps interpret the splitting rules and understand how the model classifies players.
+
+```{R}
+# Visualize the decision tree
+rpart.plot(tree_model)
+```
 
 ## Train a K-NN algorithm
 
+K-NN requires numeric predictors, so we restrict the dataset to gameplay metrics. The model automatically applies normalization to ensure all distances are comparable.
+```{R}
+# Select only numerical predictors + target (K-NN requires numeric features)
+train_knn <- train_class[, c("playtime","sessions","levels","friends","skill_score","user_type")]
+test_knn  <- test_class[,  c("playtime","sessions","levels","friends","skill_score","user_type")]
+
+# Train the KNN classifier with centering and scaling
+knn_model <- train(user_type ~ .,
+                   data = train_knn,
+                   method = "knn",
+                   preProcess = c("center","scale"))
+```
 
 ## Evaluate the K-NN algorithm
+We compute accuracy and the confusion matrix to assess how well the K-NN model distinguishes Premium and Freemium players.
 
+```{R}
+# Predict on the test set
+knn_pred <- predict(knn_model, newdata = test_knn)
+
+# Accuracy
+knn_accuracy <- mean(knn_pred == test_knn$user_type)
+knn_accuracy
+
+# Confusion matrix
+knn_conf_matrix <- table(Predicted = knn_pred,
+                         Actual = test_knn$user_type)
+knn_conf_matrix
+```
 
 ## Evaluate and compare
 
+In this final step, we compare the performance and characteristics of the two classification models applied: the Decision Tree and the k-Nearest Neighbors (K-NN) classifier. Both models were trained using the same 70/30 train-test split to ensure consistency in the evaluation.
 
+### Accuracy comparison
 
----------------------------------
+Both models achieved a relatively high overall accuracy. However, this value must be interpreted with caution due to the strong class imbalance in the dataset (96% Freemium, 4% Premium).
+Since predicting Freemium for all players would already yield high accuracy, this metric alone is not sufficient to assess model quality.
+
+Decision Tree accuracy: r tree_accuracy
+
+K-NN accuracy: r knn_accuracy
+
+Although both models classify most Freemium users correctly, neither model is able to reliably identify Premium players, which is reflected in the confusion matrices. The class imbalance limits their discriminative power.
+
+### Confusion matrix interpretation
+
+The Decision Tree tends to predict the majority class (Freemium) for almost all observations. This results in high accuracy for Freemium but very low sensitivity for Premium.
+
+The K-NN model shows a similar pattern: it correctly identifies most Freemium users but struggles to detect Premium users.
+Since distance-based methods rely on dense regions of the feature space, the scarcity of Premium examples makes it difficult for K-NN to form meaningful neighborhoods for that class.
+
+In both cases, sensitivity toward the Premium class remains extremely low.
+
+### Interpretability
+
+Decision Tree:
+Highly interpretable, easy to visualize, and capable of generating human-readable rules.
+However, in this dataset the tree collapses into a single node, reflecting the overwhelming dominance of the Freemium class.
+
+K-NN:
+Less interpretable, since predictions depend on distances in the feature space.
+However, it adapts to local patterns and may perform better than the tree when enough examples exist for each class.
+
+### Learning behaviour
+
+Decision Tree:
+Learns global rules but, due to the imbalance, it finds no meaningful split and defaults to predicting the majority class.
+
+K-NN:
+Learns locally, storing all training instances.
+Still, the imbalance means that most neighbors belong to the Freemium class, so predictions tend toward that class as well.
+
+-----------------------------
 
 # Conclusions
 
 ## Insights
 
+The analysis shows clear behavioral differences between Premium and Freemium users: Premium players display higher engagement and generate almost all of the spending. The A/B test confirms that the new version of the reward system (Group B) significantly increases playtime. However, the regression models reveal that the available variables explain almost none of the spending behaviour, meaning important monetization drivers are missing from the dataset. The classification results also show that the strong class imbalance makes it difficult to correctly identify Premium users.
+
 ## Learnings
 
+Throughout the project, several meaningful learnings emerged:
+
+- A/B testing is crucial for decision-making, allowing design hypotheses to be validated with evidence rather than intuition. The A/B that we did in this project is a clear example of how data can guide feature iteration.
+
+- A low R² in regression does not indicate failure, but rather highlights that the model lacks relevant features. More behavioural variables would likely improve the predictive power of the model.
+
+- Accuracy alone is not reliable if there is some class imbalance so additional metrics and rebalancing techniques are necessary.
+
+- Combining descriptive analysis, statistical testing, and machine learning gives a more complete perspective on player behaviour, enabling both strategic insights and actionable recommendations.
 
 -----------------
 
 # Distribution of tasks
-The following distribution of tasks follows the same order as in the table of contents.
-Descriptive metrics was done by Javier Ezquerro.
-Game performance metrics was done by Marc Soriano.
-Visuals were done by Guillem Plademunt and Bernat Garcia (3 visuals each).
-AB testing was done by Guillem Plademunt (Test 1) and Marc Soriano (Test 2).
-Regression analysis was done by Javier Ezquerro. 
-Classification analysis was done by Bernat Garcia.
-Finally, the conclusions were written by the whole team collaboratively.
+
+We aimed to organise the workload so that each team member contributed a similar amount of work, and whenever a task was particularly complex, it was handled collaboratively by two people instead of one. The division of tasks was as follows (following the same structure as the table of contents):
+
+1.1. Descriptive metrics -- done by Javier Ezquerro.
+
+1.2. Game performance metrics -- done by Marc Soriano.
+
+2. Visuals -- done by Guillem Plademunt and Bernat Garcia (3 visuals each).
+
+3. AB testing -- done by Guillem Plademunt (Test 1) and Marc Soriano (Test 2).
+
+4. Regression analysis -- done by Javier Ezquerro.
+
+5. Classification analysis -- done by Javier Ezquerro and Bernat Garcia.
+
+6. Finally, the Conclusions -- written by the whole team collaboratively.
 
 
 
